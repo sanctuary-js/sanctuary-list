@@ -305,10 +305,10 @@
   //.     `'Cons (' + show (head) + ') (' + show (tail) + ')'`
   //.
   //. ```javascript
-  //. > show (Nil)
+  //. > S.show (Nil)
   //. 'Nil'
   //.
-  //. > show (Cons ('foo') (Cons ('bar') (Cons ('baz') (Nil))))
+  //. > S.show (Cons ('foo') (Cons ('bar') (Cons ('baz') (Nil))))
   //. 'Cons ("foo") (Cons ("bar") (Cons ("baz") (Nil)))'
   //. ```
   function List$prototype$show() {
