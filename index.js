@@ -80,6 +80,12 @@
     if (typeof custom === 'symbol') {
       prototype[custom] = List$prototype$show;
     }
+    /* istanbul ignore if */
+    if (typeof Deno !== 'undefined') {
+      if (Deno != null && typeof Deno.customInspect === 'symbol') {
+        prototype[Deno.customInspect] = List$prototype$show;
+      }
+    }
   }
 
   //. `List a` satisfies the following [Fantasy Land][] specifications:
