@@ -1,4 +1,5 @@
 import {deepStrictEqual as eq} from 'node:assert';
+import {inspect} from 'node:util';
 
 import laws from 'fantasy-laws';
 import jsc from 'jsverify';
@@ -64,6 +65,13 @@ test ('@@show', () => {
   eq (show (Cons ('foo') (Nil)), 'Cons ("foo") (Nil)');
   eq (show (Cons ('foo') (Cons ('bar') (Nil))), 'Cons ("foo") (Cons ("bar") (Nil))');
   eq (show (Cons ('foo') (Cons ('bar') (Cons ('baz') (Nil)))), 'Cons ("foo") (Cons ("bar") (Cons ("baz") (Nil)))');
+});
+
+test ('util.inspect', () => {
+  eq (inspect (Cons (1) (Cons (2) (Cons (3) (Nil)))),
+      'Cons (1) (Cons (2) (Cons (3) (Nil)))');
+  eq (inspect (Cons (Cons (1) (Nil)) (Cons (Cons (2) (Nil)) (Cons (Cons (3) (Nil)) (Nil)))),
+      'Cons (Cons (1) (Nil)) (Cons (Cons (2) (Nil)) (Cons (Cons (3) (Nil)) (Nil)))');
 });
 
 test ('Setoid', () => {
