@@ -3,19 +3,18 @@
   "extends": ["./node_modules/sanctuary-style/eslint.json"],
   "overrides": [
     {
-      "files": ["*.md"],
-      "globals": {"$": "readonly", "Cons": "readonly", "List": "readonly", "Nil": "readonly", "S": "readonly", "Z": "readonly"}
-    },
-    {
       "files": ["index.js"],
-      "globals": {"Deno": "readonly", "process": "readonly"},
+      "globals": {"Deno": "readonly", "__doctest": "readonly", "define": "readonly", "module": "readonly", "require": "readonly", "process": "readonly", "self": "readonly"},
       "rules": {
         "no-unused-vars": ["error", {"vars": "all", "varsIgnorePattern": "^S$", "args": "none"}]
       }
     },
     {
       "files": ["test/**/*.js"],
-      "parserOptions": {"ecmaVersion": 2020, "sourceType": "module"}
+      "parserOptions": {"ecmaVersion": 2020, "sourceType": "module"},
+      "rules": {
+        "max-len": ["off"]
+      }
     }
   ]
 }

@@ -8,7 +8,7 @@
 
   'use strict';
 
-  /* istanbul ignore else */
+  /* c8 ignore start */
   if (typeof module === 'object' && typeof module.exports === 'object') {
     module.exports = f (require ('sanctuary-show'),
                         require ('sanctuary-type-classes'));
@@ -18,12 +18,13 @@
     self.sanctuaryList = f (self.sanctuaryShow,
                             self.sanctuaryTypeClasses);
   }
+  /* c8 ignore stop */
 
 }) ((show, Z) => {
 
   'use strict';
 
-  /* istanbul ignore if */
+  /* c8 ignore start */
   if (typeof __doctest !== 'undefined') {
     const {create, env} = __doctest.require ('sanctuary');
     // eslint-disable-next-line no-var
@@ -41,6 +42,7 @@
       env: Z.concat (env, [List ($.Unknown)]),
     });
   }
+  /* c8 ignore stop */
 
   //  reverse :: List a -> List a
   const reverse = list => {
@@ -77,23 +79,23 @@
     'fantasy-land/extend': List$prototype$extend,
   };
 
-  /* istanbul ignore else */
   if (
     typeof process !== 'undefined' &&
     process != null &&
     process.versions != null &&
     process.versions.node != null
   ) {
-    prototype[
-      Symbol.for ('nodejs.util.inspect.custom')  // added in Node.js v10.12.0
-    ] = List$prototype$show;
+    const inspect = Symbol.for ('nodejs.util.inspect.custom');
+    prototype[inspect] = List$prototype$show;
   }
-  /* istanbul ignore if */
-  if (typeof Deno !== 'undefined') {
-    if (Deno != null && typeof Deno.customInspect === 'symbol') {
-      prototype[Deno.customInspect] = List$prototype$show;
-    }
-  }
+
+  /* c8 ignore start */
+  if (
+    typeof Deno !== 'undefined' &&
+    Deno != null &&
+    typeof Deno.customInspect === 'symbol'
+  ) prototype[Deno.customInspect] = List$prototype$show;
+  /* c8 ignore stop */
 
   //. `List a` satisfies the following [Fantasy Land][] specifications:
   //.
