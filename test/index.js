@@ -2,7 +2,6 @@
 
 const assert        = require ('assert');
 
-const FL            = require ('../../../fantasyland/fantasy-land');
 const laws          = require ('fantasy-laws');
 const jsc           = require ('jsverify');
 const Identity      = require ('sanctuary-identity');
@@ -17,10 +16,14 @@ const List          = require ('..');
 const {Nil, Cons}   = List;
 
 
+//    arrayToList :: Array a -> List a
+const arrayToList = xs => xs.reduce ((list, x) => Cons (x) (list), Nil);
+
+//    IdentityArb :: Arbitrary a -> Arbitrary (Identity a)
+const IdentityArb = arb => arb.smap (Identity);
+
 //    ListArb :: Arbitrary a -> Arbitrary (List a)
-const ListArb = arb => (jsc.array (arb)).smap (xs =>
-  Z.reduce ((list, x) => Cons (x) (list), Nil, xs)
-);
+const ListArb = arb => (jsc.array (arb)).smap (arrayToList);
 
 //    testLaws :: Object -> Object -> Undefined
 const testLaws = laws => arbs => {
@@ -37,7 +40,7 @@ function eq(actual) {
   return function eq$1(expected) {
     assert.strictEqual (arguments.length, eq$1.length);
     assert.strictEqual (show (actual), show (expected));
-    assert.strictEqual (FL.equals (actual) (expected), true);
+    assert.strictEqual (Z.equals (actual, expected), true);
   };
 }
 
@@ -108,8 +111,8 @@ suite ('type-class predicates', () => {
   });
 
   test ('Monoid', () => {
-    eq (Z.Monoid.test (Nil)) (false);  // XXX
-    eq (Z.Monoid.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Monoid.test (Nil)) (true);
+    eq (Z.Monoid.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('Group', () => {
@@ -143,53 +146,53 @@ suite ('type-class predicates', () => {
   });
 
   test ('Applicative', () => {
-    eq (Z.Applicative.test (Nil)) (false);  // XXX
-    eq (Z.Applicative.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Applicative.test (Nil)) (true);
+    eq (Z.Applicative.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('Chain', () => {
-    eq (Z.Chain.test (Nil)) (false);  // XXX
-    eq (Z.Chain.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Chain.test (Nil)) (true);
+    eq (Z.Chain.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('ChainRec', () => {
-    eq (Z.ChainRec.test (Nil)) (false);  // XXX
-    eq (Z.ChainRec.test (Cons (Useless) (Nil))) (false);
+    eq (Z.ChainRec.test (Nil)) (true);
+    eq (Z.ChainRec.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('Monad', () => {
-    eq (Z.Monad.test (Nil)) (false);  // XXX
-    eq (Z.Monad.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Monad.test (Nil)) (true);
+    eq (Z.Monad.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('Alt', () => {
-    eq (Z.Alt.test (Nil)) (false);  // XXX
-    eq (Z.Alt.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Alt.test (Nil)) (true);
+    eq (Z.Alt.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('Plus', () => {
-    eq (Z.Plus.test (Nil)) (false);  // XXX
-    eq (Z.Plus.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Plus.test (Nil)) (true);
+    eq (Z.Plus.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('Alternative', () => {
-    eq (Z.Alternative.test (Nil)) (false);  // XXX
-    eq (Z.Alternative.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Alternative.test (Nil)) (true);
+    eq (Z.Alternative.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('Foldable', () => {
-    eq (Z.Foldable.test (Nil)) (false);  // XXX
-    eq (Z.Foldable.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Foldable.test (Nil)) (true);
+    eq (Z.Foldable.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('Traversable', () => {
-    eq (Z.Traversable.test (Nil)) (false);  // XXX
-    eq (Z.Traversable.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Traversable.test (Nil)) (true);
+    eq (Z.Traversable.test (Cons (Useless) (Nil))) (true);
   });
 
   test ('Extend', () => {
-    eq (Z.Extend.test (Nil)) (false);  // XXX
-    eq (Z.Extend.test (Cons (Useless) (Nil))) (false);
+    eq (Z.Extend.test (Nil)) (true);
+    eq (Z.Extend.test (Cons (Useless) (Nil))) (true);
   });
 
 //  test ('Comonad', () => {
@@ -207,31 +210,31 @@ suite ('type-class predicates', () => {
 suite ('methods', () => {
 
   test ('fantasy-land/equals', () => {
-    eq (FL.equals (Nil) (Nil)) (true);
-    eq (FL.equals (Nil) (Cons (0) (Nil))) (false);
-    eq (FL.equals (Cons (0) (Nil)) (Nil)) (false);
-    eq (FL.equals (Cons (0) (Nil)) (Cons (0) (Nil))) (true);
-    eq (FL.equals (Cons (0) (Nil)) (Cons (1) (Nil))) (false);
-    eq (FL.equals (Cons (1) (Nil)) (Cons (0) (Nil))) (false);
-    eq (FL.equals (Cons (1) (Cons (2) (Nil))) (Nil)) (false);
-    eq (FL.equals (Cons (1) (Cons (2) (Nil))) (Cons (1) (Nil))) (false);
-    eq (FL.equals (Cons (1) (Cons (2) (Nil))) (Cons (1) (Cons (2) (Nil)))) (true);
-    eq (FL.equals (Cons (1) (Cons (2) (Nil))) (Cons (1) (Cons (2) (Cons (3) (Nil))))) (false);
-    eq (FL.equals (Cons (['foo', 'bar', 'baz']) (Nil)) (Cons (['foo', 'bar', 'baz']) (Nil))) (true);
+    eq (Z.equals (Nil, Nil)) (true);
+    eq (Z.equals (Nil, Cons (0) (Nil))) (false);
+    eq (Z.equals (Cons (0) (Nil), Nil)) (false);
+    eq (Z.equals (Cons (0) (Nil), Cons (0) (Nil))) (true);
+    eq (Z.equals (Cons (0) (Nil), Cons (1) (Nil))) (false);
+    eq (Z.equals (Cons (1) (Nil), Cons (0) (Nil))) (false);
+    eq (Z.equals (Cons (1) (Cons (2) (Nil)), Nil)) (false);
+    eq (Z.equals (Cons (1) (Cons (2) (Nil)), Cons (1) (Nil))) (false);
+    eq (Z.equals (Cons (1) (Cons (2) (Nil)), Cons (1) (Cons (2) (Nil)))) (true);
+    eq (Z.equals (Cons (1) (Cons (2) (Nil)), Cons (1) (Cons (2) (Cons (3) (Nil))))) (false);
+    eq (Z.equals (Cons (['foo', 'bar', 'baz']) (Nil), Cons (['foo', 'bar', 'baz']) (Nil))) (true);
   });
 
   test ('fantasy-land/lte', () => {
-    eq (FL.lte (Nil) (Nil)) (true);
-    eq (FL.lte (Nil) (Cons (0) (Nil))) (false);
-    eq (FL.lte (Cons (0) (Nil)) (Nil)) (true);
-    eq (FL.lte (Cons (0) (Nil)) (Cons (0) (Nil))) (true);
-    eq (FL.lte (Cons (0) (Nil)) (Cons (0) (Cons (1) (Nil)))) (false);
-    eq (FL.lte (Cons (0) (Nil)) (Cons (1) (Nil))) (false);
-    eq (FL.lte (Cons (1) (Nil)) (Cons (0) (Nil))) (true);
-    eq (FL.lte (Cons (0) (Cons (1) (Nil))) (Nil)) (true);
-    eq (FL.lte (Cons (0) (Cons (1) (Nil))) (Cons (0) (Nil))) (true);
-    eq (FL.lte (Cons (0) (Cons (1) (Nil))) (Cons (1) (Nil))) (false);
-    eq (FL.lte (Cons (['foo', 'bar', 'baz']) (Nil)) (Cons (['foo', 'bar', 'baz']) (Nil))) (true);
+    eq (Z.lte (Nil, Nil)) (true);
+    eq (Z.lte (Nil, Cons (0) (Nil))) (true);
+    eq (Z.lte (Cons (0) (Nil), Nil)) (false);
+    eq (Z.lte (Cons (0) (Nil), Cons (0) (Nil))) (true);
+    eq (Z.lte (Cons (0) (Nil), Cons (0) (Cons (1) (Nil)))) (true);
+    eq (Z.lte (Cons (0) (Nil), Cons (1) (Nil))) (true);
+    eq (Z.lte (Cons (1) (Nil), Cons (0) (Nil))) (false);
+    eq (Z.lte (Cons (0) (Cons (1) (Nil)), Nil)) (false);
+    eq (Z.lte (Cons (0) (Cons (1) (Nil)), Cons (0) (Nil))) (false);
+    eq (Z.lte (Cons (0) (Cons (1) (Nil)), Cons (1) (Nil))) (true);
+    eq (Z.lte (Cons (['foo', 'bar', 'baz']) (Nil), Cons (['foo', 'bar', 'baz']) (Nil))) (true);
   });
 
   test ('fantasy-land/concat', () => {
@@ -530,25 +533,25 @@ suite ('Foldable laws', () => {
   });
 });
 
-// suite ('Traversable laws', () => {
-//   testLaws (laws.Traversable (Z.equals)) ({
-//     naturality: [
-//       jsc.constant (Either),
-//       jsc.constant (List),
-//       jsc.constant (eitherToMaybe),
-//       ListArb (EitherArb (jsc.string) (jsc.number)),
-//     ],
-//     identity: [
-//       jsc.constant (Identity),
-//       ListArb (jsc.number),
-//     ],
-//     composition: [
-//       jsc.constant (Identity),
-//       jsc.constant (List),
-//       ListArb (IdentityArb (ListArb (jsc.number))),
-//     ],
-//   });
-// });
+suite ('Traversable laws', () => {
+  testLaws (laws.Traversable (Z.equals)) ({
+    naturality: [
+      jsc.constant (Array),
+      jsc.constant (List),
+      jsc.constant (arrayToList),
+      ListArb (jsc.array (jsc.number)),
+    ],
+    identity: [
+      jsc.constant (Identity),
+      ListArb (jsc.number),
+    ],
+    composition: [
+      jsc.constant (Identity),
+      jsc.constant (List),
+      ListArb (IdentityArb (ListArb (jsc.number))),
+    ],
+  });
+});
 
 suite ('Extend laws', () => {
   testLaws (laws.Extend (Z.equals)) ({

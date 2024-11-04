@@ -28,8 +28,6 @@
 
   'use strict';
 
-  const FL = require ('../../fantasyland/fantasy-land');
-
   /* istanbul ignore if */
   if (typeof __doctest !== 'undefined') {
     const {create, env} = __doctest.require ('sanctuary');
@@ -70,8 +68,18 @@
   const List = {};
 
   const prototype = {
+    'constructor': List,
     '@@type': listTypeIdent,
     '@@show': List$prototype$show,
+    'fantasy-land/concat': List$prototype$concat,
+    'fantasy-land/filter': List$prototype$filter,
+    'fantasy-land/map': List$prototype$map,
+    'fantasy-land/ap': List$prototype$ap,
+    'fantasy-land/chain': List$prototype$chain,
+    'fantasy-land/alt': List$prototype$alt,
+    'fantasy-land/reduce': List$prototype$reduce,
+    'fantasy-land/traverse': List$prototype$traverse,
+    'fantasy-land/extend': List$prototype$extend,
   };
 
   {
@@ -124,67 +132,6 @@
   //. . 'Contravariant   ❌   ' ]
   //. ```
 
-  const typeRep = $1 => {
-    const tr = {};
-    if (FL.isSetoid ($1)) {
-      tr.equals = rhs => lhs => {
-        let l = lhs;
-        let r = rhs;
-        while (l.isCons && r.isCons && FL.equals (r.head) (l.head)) {
-          l = l.tail;
-          r = r.tail;
-        }
-        return l.isNil && r.isNil;
-      };
-    }
-    if (FL.isOrd ($1)) {
-      tr.lte = rhs => lhs => {
-        let l = lhs;
-        let r = rhs;
-        while (l.isCons && r.isCons && FL.equals (r.head) (l.head)) {
-          l = l.tail;
-          r = r.tail;
-        }
-        return l.isNil || r.isCons && FL.lte (r.head) (l.head);
-      };
-    }
-    tr.concat = concat;
-    tr.filter = pred => xs => {
-      let result = Nil;
-      for (let l = reverse (xs); l.isCons; l = l.tail) {
-        if (pred (l.head)) result = Cons (l.head) (result);
-      }
-      return result;
-    };
-    tr.map = f => xs => {
-      let result = Nil;
-      for (let l = reverse (xs); l.isCons; l = l.tail) {
-        result = Cons (f (l.head)) (result);
-      }
-      return result;
-    };
-    tr.ap = fs => xs => {
-      let result = Nil;
-      const reversed = reverse (xs);
-      for (let r = reverse (fs); r.isCons; r = r.tail) {
-        for (let l = reversed; l.isCons; l = l.tail) {
-          result = Cons (r.head (l.head)) (result);
-        }
-      }
-      return result;
-    };
-    return tr;
-  };
-
-  //  _Nil :: TypeRep a -> List a
-  const _Nil = tr => {
-    const Nil = Object.create (prototype);
-    Nil.isNil = true;
-    Nil.isCons = false;
-    Nil['fantasy-land'] = typeRep (tr);
-    return Nil;
-  };
-
   //# List.Nil :: List a
   //.
   //. The empty value of type `List a`.
@@ -193,10 +140,12 @@
   //. > Nil
   //. Nil
   //. ```
-  const Nil = List.Nil = _Nil ({
-    equals: () => {},
-    lte: () => {},
-    concat: () => {},
+  const Nil = List.Nil = Object.assign (Object.create (prototype), {
+    'isNil': true,
+    'isCons': false,
+    'fantasy-land/equals': List$prototype$equals,
+    'fantasy-land/lte': List$prototype$lte,
+    'fantasy-land/concat': List$prototype$concat,
   });
 
   //# List.Cons :: a -> List a -> List a
@@ -208,23 +157,19 @@
   //. > Cons (1) (Cons (2) (Cons (3) (Nil)))
   //. Cons (1) (Cons (2) (Cons (3) (Nil)))
   //. ```
-  const Cons = List.Cons = head => {
-    const tr = typeRep (FL.typeRep (head));
-    return tail => {
-      const list = Object.create (prototype);
-      if (Z.Setoid.test (head)) {
-        list['fantasy-land/equals'] = List$prototype$equals;
-        if (Z.Ord.test (head)) {
-          list['fantasy-land/lte'] = List$prototype$lte;
-        }
+  const Cons = List.Cons = head => tail => {
+    const list = Object.create (prototype);
+    if (Z.Setoid.test (head)) {
+      list['fantasy-land/equals'] = List$prototype$equals;
+      if (Z.Ord.test (head)) {
+        list['fantasy-land/lte'] = List$prototype$lte;
       }
-      list['fantasy-land'] = tr;
-      list.isNil = false;
-      list.isCons = true;
-      list.head = head;
-      list.tail = tail.isNil ? _Nil (tr) : tail;
-      return list;
-    };
+    }
+    list.isNil = false;
+    list.isCons = true;
+    list.head = head;
+    list.tail = tail;
+    return list;
   };
 
   //# List.fantasy-land/empty :: () -> List a
@@ -510,7 +455,7 @@
   //.
   //. > S.alt (Cons (1) (Cons (2) (Cons (3) (Nil))))
   //. .       (Cons (4) (Cons (5) (Cons (6) (Nil))))
-  //. Cons (1) (Cons (2) (Cons (3) (Cons (4) (Cons (5) (Cons (6) (Nil))))))
+  //. Cons (4) (Cons (5) (Cons (6) (Cons (1) (Cons (2) (Cons (3) (Nil))))))
   //. ```
   function List$prototype$alt(other) {
     return concat (this) (other);
@@ -592,4 +537,3 @@
 //. [`Z.lt`]:                   v:sanctuary-js/sanctuary-type-classes#lt
 //. [`Z.lte`]:                  v:sanctuary-js/sanctuary-type-classes#lte
 //. [iff]:                      https://en.wikipedia.org/wiki/If_and_only_if
-//. [type representative]:      v:fantasyland/fantasy-land#type-representatives
