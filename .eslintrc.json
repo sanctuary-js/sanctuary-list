@@ -12,6 +12,10 @@
       "rules": {
         "no-unused-vars": ["error", {"vars": "all", "varsIgnorePattern": "^S$", "args": "none"}]
       }
+    },
+    {
+      "files": ["test/**/*.js"],
+      "parserOptions": {"ecmaVersion": 2020, "sourceType": "module"}
     }
   ]
 }
