@@ -8,7 +8,7 @@
     },
     {
       "files": ["index.js"],
-      "globals": {"Deno": "readonly"},
+      "globals": {"Deno": "readonly", "process": "readonly"},
       "rules": {
         "no-unused-vars": ["error", {"vars": "all", "varsIgnorePattern": "^S$", "args": "none"}]
       }
