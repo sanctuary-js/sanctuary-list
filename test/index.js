@@ -10,10 +10,7 @@ import Z from 'sanctuary-type-classes';
 import type from 'sanctuary-type-identifiers';
 import Useless from 'sanctuary-useless';
 
-import List from '../index.js';
-
-
-const {Nil, Cons}   = List;
+import {List, Nil, Cons} from '../index.js';
 
 
 //    arrayToList :: Array a -> List a
